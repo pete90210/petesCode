@@ -1,0 +1,109 @@
+         PUSH PRINT,NOPRINT                                             00010000
+         PRINT OFF,NOPRINT                                              00020000
+.* Created by Pete Billing
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00280000
+.* THE Z800-2066XXX PROCESSOR SERIES DOES NOT SUPPORT THESE             00290000
+.* COMMONLY USED ARCHITECTURAL FACILITIES:                              00300000
+.* 1. EXTENDED IMMEDIATE                                                00310000
+.* 2. GENERAL INSTRUCTION                                               00320000
+.* THE OPSYNS IN THIS FILE CONVERT THE INSTRUCTIONS WITHIN              00330000
+.* THESE 2 FACILITIES TO RETROGRADED INSTRUCTIONS.                      00340000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00350000
+_@LLILF  OPSYN LLILF                                                    00360000
+         MACRO ,                                                        00370000
+&LBL     LLILF &R,&PIMMED                                               00380000
+&LBL     TOPSY1@_ LG,&R,&PIMMED,0,8                                     00390000
+         MEND  ,                                                        00400000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00410000
+_@NILF   OPSYN NILF                                                     00420000
+         MACRO ,                                                        00430000
+&LBL     NILF  &R,&PIMMED                                               00440000
+&LBL     TOPSY1@_ N,&R,&PIMMED,1                                        00450000
+.MEND    MEND  ,                                                        00460000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00470000
+_@OILF   OPSYN OILF                                                     00480000
+         MACRO ,                                                        00490000
+&LBL     OILF  &R,&PIMMED                                               00500000
+&LBL     TOPSY1@_ O,&R,&PIMMED,1                                        00510000
+.MEND    MEND  ,                                                        00520000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00530000
+_@XILF   OPSYN XILF                                                     00540000
+         MACRO ,                                                        00550000
+&LBL     XILF  &R,&PIMMED                                               00560000
+&LBL     TOPSY1@_ X,&R,&PIMMED,1                                        00570000
+.MEND    MEND  ,                                                        00580000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00590000
+_@ALFI   OPSYN ALFI                                                     00600000
+         MACRO ,                                                        00610000
+&LBL     ALFI  &R,&PIMMED                                               00620000
+&LBL     TOPSY1@_ AL,&R,&PIMMED,1                                       00630000
+.MEND    MEND  ,                                                        00640000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00650000
+_@AGFI   OPSYN AGFI                                                     00660000
+         MACRO ,                                                        00670000
+&LBL     AGFI  &R,&PIMMED                                               00680000
+&LBL     TOPSY1@_ AGF,&R,&PIMMED,1                                      00690000
+.MEND    MEND  ,                                                        00700000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00710000
+_@LGFI   OPSYN LGFI                                                     00720000
+         MACRO ,                                                        00730000
+&LBL     LGFI  &R,&PIMMED                                               00740000
+&LBL     TOPSY1@_ LG,&R,&PIMMED,0                                       00750000
+.MEND    MEND  ,                                                        00760000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00770000
+_@LT     OPSYN LT                                              %5411484 00780000
+         MACRO ,                                               %5411484 00790000
+&LBL     LT    &R,&ADDR                                        %5411484 00800000
+&LBL     L     &R,&ADDR           Z800 support                 %5411484 00810000
+         LTR   &R,&R                                           %5411484 00820000
+         MEND  ,                                               %5411484 00830000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00840000
+_@LTG    OPSYN LTG                                             %5411484 00850000
+         MACRO ,                                               %5411484 00860000
+&LBL     LTG   &R,&ADDR                                        %5411484 00870000
+&LBL     LG    &R,&ADDR           Z800 support                 %5411484 00880000
+         LTGR  &R,&R                                           %5411484 00890000
+         MEND  ,                                               %5411484 00900000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00910000
+_@LTGF   OPSYN LTGF                                            %5411484 00920000
+         MACRO ,                                               %5411484 00930000
+&LBL     LTGF  &R,&ADDR                                        %5411484 00940000
+.* LGF sets wide sign bit                                      %5411484 00950000
+&LBL     LGF   &R,&ADDR           Z800 support                 %5411484 00960000
+         LTR   &R,&R                                           %5411484 00970000
+         MEND  ,                                               %5411484 00980000
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00990000
+         MACRO ,                                                        01000000
+&LBL     TOPSY1@_ &INST,&R,&PIMMED,&BAS,&DL                             01010000
+&LBL     DS    0H                 Z800 support                          01020000
+&NBAS    SETB  (&BAS OR '&R' EQ 'R0'  OR '&R' EQ '0' )                  01030000
+         AIF   (&DL EQ 8).IL8B                                          01040000
+&WDL     SETA  4                                                        01050000
+         AGO   .IL8BX                                                   01060000
+.IL8B    ANOP  ,                                                        01070000
+&WDL     SETA  8                                                        01080000
+.IL8BX   ANOP  ,                                                        01090000
+&DL8     SETB  (&DL EQ 8)                                               01100000
+         AIF   (&NBAS).NBASA                                            01110000
+&RX      SETC  '&R'                                                     01120000
+         AGO   .NBASB                                                   01130000
+.NBASA   ANOP  ,                                                        01140000
+&RX      SETC  'R15'                                                    01150000
+         SAR   R14,&RX            Save lo half to AR14                  01160000
+         SRLG  &RX,&RX,32         Shift hi half to lo half              01170000
+         SAR   R15,&RX            Save hi half to AR15                  01180000
+.NBASB   JAS   &RX,*+4+&WDL       Get addr pseudo-immed data            01190000
+         AIF   (&DL8).IL8A                                              01200000
+         DC    AL4(&PIMMED)        & jump to RX/RXY instruc             01210000
+         AGO   .IL8AX                                                   01220000
+.IL8A    DC    AL4(0,&PIMMED)      & jump to RX/RXY instruc             01230000
+.IL8AX   ANOP  ,                                                        01240000
+         &INST &R,0(,&RX)         Apply pseudo-immed data               01250000
+         AIF   (NOT &NBAS).MEND                                         01260000
+         EAR   &RX,R15            Restore hi half                       01270000
+         SLLG  &RX,&RX,32         ...from AR15                          01280000
+         SAR   R15,&RX            Zero work AR15                        01290000
+         EAR   &RX,R14            Restore lo half from AR14             01300000
+         CPYA  R14,R15            Zero work AR14                        01310000
+.MEND    MEND  ,                                                        01320000
+         POP  PRINT,NOPRINT                                             01330000

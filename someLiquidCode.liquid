@@ -1,0 +1,32 @@
+<script type="text/javascript">
+function fisherYates ( myArray ) {
+  var i = myArray.length, j, temp;
+    if ( i === 0 ) return false;
+  while ( --i ) {
+      j = Math.floor( Math.random() * ( i + 1 ) );
+      temp = myArray[i];
+      myArray[i] = myArray[j]; 
+      myArray[j] = temp;
+  }
+}
+ 
+var collection = new Array();
+{% for product in collection.products %}
+  collection[{{ forloop.index | minus:1 }}]="{% include 'random-product' %}";
+{% endfor %}
+ 
+fisherYates(collection);
+var randomCollection = collection[0];
+for(var i=1;i<collection.length;i++) {
+  randomCollection += collection[i];
+  if ( i && ((i+1) % 3 === 0)) {randomCollection += "<br class='clear product_clear' />";}
+}
+$('.random-collection').html(randomCollection);
+</script>
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+{% comment %}Snippet: random-product.liquid {% endcomment %}
+
+<a href='{{ product.url | within: collection }}'><img src='{{ product.featured_image | product_img_url:'large' }}' alt='{{ product.title | escape }}' /><p>{{ product.title | escape }}</p><p>{{ product.price | money }}</p></a>

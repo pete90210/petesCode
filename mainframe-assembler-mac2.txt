@@ -1,0 +1,69 @@
+         PUSH PRINT,NOPRINT                                             00011022
+         PRINT OFF,NOPRINT                                              00020022
+.* Created by Pete Billing **********************************           00030022
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00280022
+_@AMODE  OPSYN    AMODE                                                 00290022
+         MACRO    ,                  SET &SYSAM64 PROPERLY              00300022
+&CSCT    AMODE    &AM                 AT THE TOP OF THE SOURCE          00310022
+         AIF      ('&AM' EQ '64').YES    FILE BY EXAMINING              00320022
+         AIF      ('&AM' EQ '31').NO     THE AMODE INSTRUCTION          00330022
+         AIF      ('&AM' EQ '24').NO                                    00340022
+         AGO      .GO2                                                  00350022
+.YES     ANOP     ,                                                     00360022
+&YN      SETC     'YES'                                                 00370022
+         AGO      .GO                                                   00380022
+.NO      ANOP     ,                                                     00390022
+&YN      SETC     'NO'                                                  00400022
+.GO      TSYSSTAT AMODE64=&YN,ASCENV=                                   00410022
+.GO2     ANOP     ,                                                     00420022
+&CSCT    _@AMODE  &AM                                                   00430022
+         MEND     ,                                                     00440022
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00441022
+_@SACF   OPSYN    SACF                                                  00442125
+_@SAC    OPSYN    SAC                                                   00442225
+.* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *          00442325
+         MACRO    ,               SACF INVOKES SAC MACRO,               00443025
+&LBL     SACF     &CTL             PASSING 'F' FOR INSTRUCTION          00444025
+&LBL     SAC      &CTL,F           CONCATENATION.                       00445025
+         MEND     ,                                                     00450824
+.* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *          00450925
+         MACRO    ,                                                     00451125
+&LBL     SAC      &CTL,&F                                               00451225
+         AIF     ('&F' NE 'F' AND &SYSNEST GT 1).IN                     00452026
+         AIF     ('&F' EQ 'F' AND &SYSNEST GT 2).IN                     00452126
+         AIF     (&CTL NE 0).AR                                         00453026
+&LBL     TSYSSTAT AMODE64=,ASCENV=P        PRIMARY MODE                 00454025
+         AGO      .IN                                                   00455025
+.AR      ANOP     ,                                                     00456025
+&LBL     TSYSSTAT AMODE64=,ASCENV=AR       AR MODE                      00457025
+.IN      ANOP     ,                                                     00458025
+         _@SAC&F  &CTL                                                  00459025
+         MEND     ,                                                     00460025
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00660022
+_@SAM64  OPSYN    SAM64                                                 00670022
+         MACRO    ,                                                     00680022
+&LBL     SAM64    ,                                                     00690022
+         AIF      (&SYSNEST GT 1).NT                                    00691022
+         TSYSSTAT AMODE64=YES,ASCENV= Tell macros in 64 bit             00700022
+.NT      ANOP     ,                                                     00701022
+&LBL     _@SAM64  ,                   SAM64                             00710022
+         MEND     ,                                                     00720022
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00730022
+_@SAM31  OPSYN    SAM31                                                 00740022
+         MACRO    ,                                                     00750022
+&LBL     SAM31    ,                                                     00760022
+         AIF      (&SYSNEST GT 1).NT                                    00761022
+         TSYSSTAT AMODE64=NO,ASCENV=  Tell macros in 31 bit             00770022
+.NT      ANOP     ,                                                     00771022
+&LBL     _@SAM31  ,                   SAM31                             00780022
+         MEND     ,                                                     00790022
+.*--+----1----+----2----+----3----+----4----+----5----+----6-*          00800022
+_@SAM24  OPSYN    SAM24                                                 00810022
+         MACRO    ,                                                     00820022
+&LBL     SAM24    ,                                                     00830022
+         AIF      (&SYSNEST GT 1).NT                                    00831022
+         TSYSSTAT AMODE64=NO,ASCENV=  Tell macros in 24 bit             00840022
+.NT      ANOP     ,                                                     00841022
+&LBL     _@SAM24  ,                   SAM24                             00850022
+         MEND     ,                                                     00860022
+         POP  PRINT,NOPRINT                                             00870022
