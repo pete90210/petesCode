@@ -12,13 +12,13 @@ function gen_desc_tags_for_item%
 
 dim frc%
 
-frc=msgbox(&quot;Do you want to generate Item Tags from Descriptions?&quot;,4+32+256,&quot;Verify Action&quot;)
-if frc&lt;&gt;6 then exit function   &apos;Must press YES
+frc=msgbox("Do you want to generate Item Tags from Descriptions?",4+32+256,"Verify Action")
+if frc<>6 then exit function   'Must press YES
 
-&apos; on error goto _error &lt;&lt;&lt;
+' on error goto _error <<<
 
 dim _ixerr%,_errxmsg$(10),_errbmsg$,_errbtit$,_errbflg%,_errid%
-_errbtit=&quot;Shopify Tag Gen Fail&quot; 
+_errbtit="Shopify Tag Gen Fail" 
 _errbflg=pub_msgbox_flag_stop_icon
 
 dim cells as object,sheet as object,doc as object
@@ -27,61 +27,61 @@ dim rows_product_selector(),row_product_selector$()
 
 Dim Filename$,FileNo%
  
-Filename = &quot;C:\Users\IBM_ADMIN\Desktop\Jewelry\MMA_International\desctags-for-item-Nov17_2016.txt&quot;     &apos; Tags written here
+Filename = "C:\Users\IBM_ADMIN\Desktop\Jewelry\MMA_International\desctags-for-item-Nov17_2016.txt"     ' Tags written here
  
 dim xr%,candidateTagIndex%,i%,j%,byte$,ffound as boolean
 dim aDescTags$(1000),tag$,desc$,itemNum$,ss$()
 
-dim tag_delims$ 	: tag_delims$=&quot;`~!@#$%^&amp;*()_-+={[}]|\:;&quot;&quot;&apos;&lt;,&gt;.?/ &quot;
+dim tag_delims$ 	: tag_delims$="`~!@#$%^&*()_-+={[}]|\:;""'<,>.?/ "
 dim skip_word$() 
 
-skip_word=array(&quot;in&quot;,&quot;it&quot;,&quot;with&quot;,&quot;on&quot;,&quot;off&quot;,&quot;over&quot;,&quot;mm&quot;,&quot;inch&quot;,&quot;inches&quot;,&quot;clasp&quot;,_
-&quot;wide&quot;,&quot;made&quot;,&quot;features&quot;,&quot;of&quot;,&quot;and&quot;,&quot;or&quot;,&quot;measures&quot;,&quot;around&quot;,&quot;can&quot;,&quot;be&quot;,&quot;combined&quot;,_
-&quot;our&quot;,&quot;other&quot;,&quot;size&quot;,&quot;shape&quot;,&quot;the&quot;,&quot;may&quot;,&quot;design&quot;,&quot;top&quot;,&quot;split&quot;,&quot;vary&quot;,&quot;nice&quot;,&quot;good&quot;,_
-&quot;has&quot;,&quot;closure&quot;,&quot;this&quot;,&quot;beautiful&quot;,&quot;gives&quot;,&quot;extra&quot;,&quot;brilliance&quot;,&quot;lots&quot;,&quot;artistically&quot;,_
-&quot;along&quot;,&quot;top&quot;,&quot;portion&quot;,&quot;surrounded&quot;,&quot;center&quot;,&quot;inner&quot;,&quot;outer&quot;,&quot;around&quot;,&quot;other&quot;,_
-&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;,&quot;three&quot;,&quot;four&quot;,&quot;five&quot;,&quot;six&quot;,&quot;seven&quot;,&quot;eight&quot;,&quot;nine&quot;,&quot;ten&quot;,_
-&quot;graduates&quot;,&quot;shank&quot;,&quot;length&quot;,&quot;diameter&quot;,&quot;is&quot;,&quot;to&quot;,&quot;will&quot;,&quot;comes&quot;,&quot;are&quot;,&quot;czs&quot;,&quot;designs&quot;,&quot;for&quot;,&quot;as&quot;,_
-&quot;feature&quot;,&quot;graduated&quot;,&quot;from&quot;,&quot;measure&quot;,&quot;width&quot;,&quot;wide&quot;,&quot;short&quot;,&quot;long&quot;,&quot;small&quot;,&quot;large&quot;,&quot;medium&quot;,&quot;separated&quot;,&quot;by&quot;,_ 
-&quot;perfect&quot;,&quot;very&quot;,&quot;alternating&quot;,&quot;approx&quot;,&quot;approximately&quot;,&quot;tag&quot;,&quot;accommodates&quot;,&quot;accommodate&quot;,&quot;an&quot;,_
-&quot;closefivedollar&quot;,&quot;closeall&quot;,&quot;closeb&quot;,&quot;woscc&quot;,&quot;closen&quot;,&quot;bv&quot;,&quot;or&quot;,&quot;view&quot;,&quot;er&quot;,_
-&quot;ss&quot;,&quot;ex&quot;,&quot;trbjothr&quot;,&quot;other&quot;,&quot;view all&quot;,&quot;style&quot;,&quot;all&quot;,&quot;ringsize...&quot;,&quot;woscsn&quot;,_
-&quot;webearrings&quot;,&quot;webbracelets&quot;,&quot;webnecklaces&quot;,&quot;woscr&quot;,&quot;closeps&quot;,&quot;closeunder25&quot;,&quot;ringall&quot;,_
-&quot;view&quot;,&quot;2&quot;,&quot;elementsofcharm&quot;,&quot;brall&quot;,&quot;watchesall&quot;,&quot;closew&quot;,&quot;closetendollar&quot;,&quot;neck&quot;,_
-&quot;theme&quot;,&quot;back&quot;,&quot;sneakpreview&quot;,&quot;finding&quot;,&quot;webother&quot;,&quot;jewelry&quot;,&quot;close&quot;,&quot;mjn&quot;,&quot;ringall&quot;,_
-&quot;closee&quot;,&quot;closeall&quot;,&quot;closefivedollar&quot;,&quot;filled&quot;,&quot;closeundertwentyfive&quot;,&quot;wosch&quot;,&quot;mjb&quot;,_
-&quot;closeovertwentyfive&quot;,&quot;webrings&quot;,&quot;closer&quot;,&quot;closeb&quot;,&quot;2&quot;,&quot;closeo&quot;,&quot;closeps&quot;,&quot;woscf&quot;,_
-&quot;adjustable&quot;,&quot;adjusts&quot;,&quot;a&quot;,&quot;x&quot;,&quot;ends&quot;,&quot;its&quot;,&quot;embellished&quot;,&quot;contains&quot;,&quot;hollow&quot;,&quot;each&quot;,&quot;both&quot;,&quot;removeable&quot;,_
-&quot;used&quot;,&quot;use&quot;,&quot;item&quot;,&quot;order&quot;,&quot;replacement&quot;,&quot;full&quot;,&quot;you&quot;,&quot;says&quot;,&quot;back&quot;,&quot;tiny&quot;,&quot;these&quot;,&quot;backs&quot;,&quot;worn&quot;,&quot;most&quot;,_
-&quot;ends&quot;,&quot;bonus&quot;,&quot;image&quot;,&quot;shown&quot;,&quot;sold&quot;,&quot;separately&quot;,&quot;pave&quot;,&quot;20â€?&quot;,&quot;24â€?&quot;,&quot;front&quot;,&quot;back&quot;,&quot;either&quot;,&quot;side&quot;,_
-&quot;fashion&quot;,&quot;base&quot;,&quot;metal&quot;,_
-&quot;bottom&quot;,&quot;area&quot;,&quot;include&quot;,&quot;includes&quot;,&quot;contains&quot;,&quot;have&quot;,&quot;total&quot;,&quot;functioning&quot;,&quot;out&quot;,&quot;open&quot;,&quot;stock&quot;,&quot;currently&quot;,_
-&quot;new&quot;,&quot;arrivals&quot;,&quot;mjo&quot;,&quot;designs&quot;,&quot;glamour&quot;,&quot;mjr&quot;,&quot;aa&quot;,&quot;aaa&quot;,&quot;woscm&quot;,&quot;mjn&quot;,&quot;watchesall&quot;,&quot;webpendants&quot;)
+skip_word=array("in","it","with","on","off","over","mm","inch","inches","clasp",_
+"wide","made","features","of","and","or","measures","around","can","be","combined",_
+"our","other","size","shape","the","may","design","top","split","vary","nice","good",_
+"has","closure","this","beautiful","gives","extra","brilliance","lots","artistically",_
+"along","top","portion","surrounded","center","inner","outer","around","other",_
+"zero","one","two","three","four","five","six","seven","eight","nine","ten",_
+"graduates","shank","length","diameter","is","to","will","comes","are","czs","designs","for","as",_
+"feature","graduated","from","measure","width","wide","short","long","small","large","medium","separated","by",_ 
+"perfect","very","alternating","approx","approximately","tag","accommodates","accommodate","an",_
+"closefivedollar","closeall","closeb","woscc","closen","bv","or","view","er",_
+"ss","ex","trbjothr","other","view all","style","all","ringsize...","woscsn",_
+"webearrings","webbracelets","webnecklaces","woscr","closeps","closeunder25","ringall",_
+"view","2","elementsofcharm","brall","watchesall","closew","closetendollar","neck",_
+"theme","back","sneakpreview","finding","webother","jewelry","close","mjn","ringall",_
+"closee","closeall","closefivedollar","filled","closeundertwentyfive","wosch","mjb",_
+"closeovertwentyfive","webrings","closer","closeb","2","closeo","closeps","woscf",_
+"adjustable","adjusts","a","x","ends","its","embellished","contains","hollow","each","both","removeable",_
+"used","use","item","order","replacement","full","you","says","back","tiny","these","backs","worn","most",_
+"ends","bonus","image","shown","sold","separately","pave","20â€?","24â€?","front","back","either","side",_
+"fashion","base","metal",_
+"bottom","area","include","includes","contains","have","total","functioning","out","open","stock","currently",_
+"new","arrivals","mjo","designs","glamour","mjr","aa","aaa","woscm","mjn","watchesall","webpendants")
 
 doc				=thiscomponent
 sheet			=doc.sheets.getbyname(pub_sheet_product_selector)
 
 
-&apos; tag(tagIndex)=&quot;.925&quot; : tagIndex=1   &apos; Special case
+' tag(tagIndex)=".925" : tagIndex=1   ' Special case
 
 
-FileNo = FreeFile               &apos; Establish free file handle
+FileNo = FreeFile               ' Establish free file handle
  
 Open Filename For Output As #FileNo    
 
 
-do 	&apos; for each row in product selector sheet (skip header)
+do 	' for each row in product selector sheet (skip header)
 
     xr=1+xr
     
 	cells = sheet.getCellRangeByposition(0,xr,pub_column_max,xr)
 	rows_product_selector() = cells.getdataarray()
-	row_product_selector=rows_product_selector(0)   &apos; 1 row of product_selector cells
+	row_product_selector=rows_product_selector(0)   ' 1 row of product_selector cells
 	
 	desc		=	lcase(row_product_selector(pub_column_product_selector_desc))
 	itemNum		=	row_product_selector(pub_column_product_selector_item_num)
 	
-	if itemNum	&lt;&gt;	&quot;&quot; then 	
+	if itemNum	<>	"" then 	
 		
 		candidateTagIndex=0
 		
@@ -89,83 +89,83 @@ do 	&apos; for each row in product selector sheet (skip header)
 			ffound=false
 		    for j=1 to len(tag_delims)
 		        if byte=mid(tag_delims,j,1) then
-		        	ffound=true  &apos; delimited byte
+		        	ffound=true  ' delimited byte
 		        	exit for
 		        end if
 		    next j		
 		    if not ffound then 
-		    	aDescTags(candidateTagIndex)=aDescTags(candidateTagIndex) &amp; byte
-			else candidateTagIndex=1+candidateTagIndex  &apos; Candidate tag complete, next slot
+		    	aDescTags(candidateTagIndex)=aDescTags(candidateTagIndex) & byte
+			else candidateTagIndex=1+candidateTagIndex  ' Candidate tag complete, next slot
 			end if
 		next i
 		
-		for i=0 to candidateTagIndex	&apos; Filter candidate tags
+		for i=0 to candidateTagIndex	' Filter candidate tags
 	
-			if aDescTags(i)=&quot;&quot; then goto next_i
+			if aDescTags(i)="" then goto next_i
 			
-			for j=0 to ubound(skip_word)	&apos; Skip tags listed in skip array
+			for j=0 to ubound(skip_word)	' Skip tags listed in skip array
 				if aDescTags(i)=skip_word(j) then 
-					aDescTags(i)=&quot;&quot;
+					aDescTags(i)=""
 				    goto next_i
 				end if
 			next j
 			
 			if isnumeric(aDescTags(i)) then
-				aDescTags(i)=&quot;&quot;
+				aDescTags(i)=""
 				goto next_i
 			end if 
 			
-			if len(aDescTags(i))&gt;2 and right(aDescTags(i),2)=&quot;mm&quot; then
-					aDescTags(i)=&quot;&quot;
+			if len(aDescTags(i))>2 and right(aDescTags(i),2)="mm" then
+					aDescTags(i)=""
 			end if	 	
 				
-			&apos; &lt;&lt;&lt; delete ##x## &lt;&lt;&lt;
+			' <<< delete ##x## <<<
 	
 	next_i:
 		next i
 		
 		
 			
-		for i=0 to candidateTagIndex	&apos; Eliminate duplicate tags
+		for i=0 to candidateTagIndex	' Eliminate duplicate tags
 			for j=0 to candidateTagIndex
-				if i&lt;&gt;j and aDescTags(i)=aDescTags(j) then aDescTags(i)=&quot;&quot;
+				if i<>j and aDescTags(i)=aDescTags(j) then aDescTags(i)=""
 			next j
 		next i
 		
-		tag = &quot;&quot;
+		tag = ""
 		
-		for i=0 to candidateTagIndex	&apos; glue tags together with comma delimiters
-			if aDescTags(i)&lt;&gt;&quot;&quot; then
-				tag = tag &amp; aDescTags(i) &amp; &quot;,&quot;
-				aDescTags(i)=&quot;&quot; 
+		for i=0 to candidateTagIndex	' glue tags together with comma delimiters
+			if aDescTags(i)<>"" then
+				tag = tag & aDescTags(i) & ","
+				aDescTags(i)="" 
 	 		end if 
 		next i
 		
-		tag = left(tag,len(tag)-1)  &apos; lose the trailing comma
+		tag = left(tag,len(tag)-1)  ' lose the trailing comma
 		
 	
-	 	Print #FileNo, itemNum &amp; &quot; &quot; &amp; tag
+	 	Print #FileNo, itemNum & " " & tag
  	
- 	end if	&apos; itemNum&lt;&gt;&quot;&quot;
+ 	end if	' itemNum<>""
 
-loop until itemNum=&quot;&quot; or xr=pub_row_max		&apos; loop row sheet product selector
+loop until itemNum="" or xr=pub_row_max		' loop row sheet product selector
 
-Close #FileNo &apos; Close file
+Close #FileNo ' Close file
 
 goto _exitfunc
 
 tag_error:
-_errbmsg=&quot;Error &quot; &amp; _errid &amp; &quot;: &quot;
+_errbmsg="Error " & _errid & ": "
 for _ixerr=0 to ubound(_errxmsg)
-    if _errxmsg(_ixerr)=&quot;&quot; then exit for
-    _errbmsg=_errbmsg &amp; _errxmsg(_ixerr) &amp; chr$(13) &amp; chr$(13)
+    if _errxmsg(_ixerr)="" then exit for
+    _errbmsg=_errbmsg & _errxmsg(_ixerr) & chr$(13) & chr$(13)
 next _ixerr	 
 frc=msgbox(_errbmsg,_errbflg,_errbtit)
 gen_desc_tags=_errid
 goto _exitfunc
 
-&apos; _error:
-&apos; gen_desc_tags=err()
+' _error:
+' gen_desc_tags=err()
 
 _exitfunc:
 end function
@@ -201,13 +201,13 @@ function gen_desc_tags%
 
 dim frc%
 
-frc=msgbox(&quot;Do you want to generate Tags from Descriptions?&quot;,4+32+256,&quot;Verify Action&quot;)
-if frc&lt;&gt;6 then exit function   &apos;Must press YES
+frc=msgbox("Do you want to generate Tags from Descriptions?",4+32+256,"Verify Action")
+if frc<>6 then exit function   'Must press YES
 
-&apos; on error goto _error &lt;&lt;&lt;
+' on error goto _error <<<
 
 dim _ixerr%,_errxmsg$(10),_errbmsg$,_errbtit$,_errbflg%,_errid%
-_errbtit=&quot;Shopify Tag Gen Fail&quot; 
+_errbtit="Shopify Tag Gen Fail" 
 _errbflg=pub_msgbox_flag_stop_icon
 
 dim cells as object,sheet as object,doc as object
@@ -216,47 +216,47 @@ dim rows_product_selector(),row_product_selector$()
 
 Dim Filename$,FileNo%
  
-Filename = &quot;C:\Users\IBM_ADMIN\Desktop\Jewelry\MMA_International\desctags.txt&quot;     &apos; Tags written here
+Filename = "C:\Users\IBM_ADMIN\Desktop\Jewelry\MMA_International\desctags.txt"     ' Tags written here
  
 dim xr%,candidateTagIndex%,i%,j%,byte$,ffound as boolean
 dim aDescTags$(1000),tag$(10000),tagIndex%,desc$,ss$()
 
-dim tag_delims$ 	: tag_delims$=&quot;`~!@#$%^&amp;*()_-+={[}]|\:;&quot;&quot;&apos;&lt;,&gt;.?/ &quot;
+dim tag_delims$ 	: tag_delims$="`~!@#$%^&*()_-+={[}]|\:;""'<,>.?/ "
 dim skip_word$() 
 
-skip_word=array(&quot;in&quot;,&quot;it&quot;,&quot;with&quot;,&quot;on&quot;,&quot;off&quot;,&quot;over&quot;,&quot;mm&quot;,&quot;inch&quot;,&quot;inches&quot;,&quot;clasp&quot;,_
-&quot;wide&quot;,&quot;made&quot;,&quot;features&quot;,&quot;of&quot;,&quot;and&quot;,&quot;or&quot;,&quot;measures&quot;,&quot;around&quot;,&quot;can&quot;,&quot;be&quot;,&quot;combined&quot;,_
-&quot;our&quot;,&quot;other&quot;,&quot;size&quot;,&quot;shape&quot;,&quot;the&quot;,&quot;may&quot;,&quot;design&quot;,&quot;top&quot;,&quot;split&quot;,&quot;vary&quot;,&quot;nice&quot;,&quot;good&quot;,_
-&quot;has&quot;,&quot;closure&quot;,&quot;this&quot;,&quot;beautiful&quot;,&quot;gives&quot;,&quot;extra&quot;,&quot;brilliance&quot;,&quot;lots&quot;,&quot;artistically&quot;,_
-&quot;along&quot;,&quot;top&quot;,&quot;portion&quot;,&quot;surrounded&quot;,&quot;center&quot;,&quot;inner&quot;,&quot;outer&quot;,&quot;around&quot;,&quot;other&quot;,_
-&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;,&quot;three&quot;,&quot;four&quot;,&quot;five&quot;,&quot;six&quot;,&quot;seven&quot;,&quot;eight&quot;,&quot;nine&quot;,&quot;ten&quot;,_
-&quot;graduates&quot;,&quot;shank&quot;,&quot;length&quot;,&quot;diameter&quot;,&quot;is&quot;,&quot;to&quot;,&quot;will&quot;,&quot;comes&quot;,&quot;are&quot;,&quot;czs&quot;,&quot;designs&quot;,&quot;for&quot;,&quot;as&quot;,_
-&quot;feature&quot;,&quot;graduated&quot;,&quot;from&quot;,&quot;measure&quot;,&quot;width&quot;,&quot;wide&quot;,&quot;short&quot;,&quot;long&quot;,&quot;small&quot;,&quot;large&quot;,&quot;medium&quot;,&quot;separated&quot;,&quot;by&quot;,_ 
-&quot;perfect&quot;,&quot;very&quot;,&quot;alternating&quot;,&quot;approx&quot;,&quot;approximately&quot;,&quot;tag&quot;,&quot;accommodates&quot;,&quot;accommodate&quot;,&quot;an&quot;,_
-&quot;closefivedollar&quot;,&quot;closeall&quot;,&quot;closeb&quot;,&quot;woscc&quot;,&quot;closen&quot;,&quot;bv&quot;,&quot;or&quot;,&quot;view&quot;,&quot;er&quot;,_
-&quot;ss&quot;,&quot;ex&quot;,&quot;trbjothr&quot;,&quot;other&quot;,&quot;view all&quot;,&quot;style&quot;,&quot;all&quot;,&quot;ringsize...&quot;,&quot;woscsn&quot;,_
-&quot;webearrings&quot;,&quot;webbracelets&quot;,&quot;webnecklaces&quot;,&quot;woscr&quot;,&quot;closeps&quot;,&quot;closeunder25&quot;,&quot;ringall&quot;,_
-&quot;view&quot;,&quot;2&quot;,&quot;elementsofcharm&quot;,&quot;brall&quot;,&quot;watchesall&quot;,&quot;closew&quot;,&quot;closetendollar&quot;,&quot;neck&quot;,_
-&quot;theme&quot;,&quot;back&quot;,&quot;sneakpreview&quot;,&quot;finding&quot;,&quot;webother&quot;,&quot;jewelry&quot;,&quot;close&quot;,&quot;mjn&quot;,&quot;ringall&quot;,_
-&quot;closee&quot;,&quot;closeall&quot;,&quot;closefivedollar&quot;,&quot;filled&quot;,&quot;closeundertwentyfive&quot;,&quot;wosch&quot;,&quot;mjb&quot;,_
-&quot;closeovertwentyfive&quot;,&quot;webrings&quot;,&quot;closer&quot;,&quot;closeb&quot;,&quot;2&quot;,&quot;closeo&quot;,&quot;closeps&quot;,&quot;woscf&quot;,_
-&quot;adjustable&quot;,&quot;adjusts&quot;,&quot;a&quot;,&quot;x&quot;,&quot;ends&quot;,&quot;its&quot;,&quot;embellished&quot;,&quot;contains&quot;,&quot;hollow&quot;,&quot;each&quot;,&quot;both&quot;,&quot;removeable&quot;,_
-&quot;used&quot;,&quot;use&quot;,&quot;item&quot;,&quot;order&quot;,&quot;replacement&quot;,&quot;full&quot;,&quot;you&quot;,&quot;says&quot;,&quot;back&quot;,&quot;tiny&quot;,&quot;these&quot;,&quot;backs&quot;,&quot;worn&quot;,&quot;most&quot;,_
-&quot;ends&quot;,&quot;bonus&quot;,&quot;image&quot;,&quot;shown&quot;,&quot;sold&quot;,&quot;separately&quot;,&quot;pave&quot;,&quot;20â€?&quot;,&quot;24â€?&quot;,&quot;front&quot;,&quot;back&quot;,&quot;either&quot;,&quot;side&quot;,_
-&quot;fashion&quot;,&quot;base&quot;,&quot;metal&quot;,_
-&quot;bottom&quot;,&quot;area&quot;,&quot;include&quot;,&quot;includes&quot;,&quot;contains&quot;,&quot;have&quot;,&quot;total&quot;,&quot;functioning&quot;,&quot;out&quot;,&quot;open&quot;,&quot;stock&quot;,&quot;currently&quot;,_
-&quot;new&quot;,&quot;arrivals&quot;,&quot;mjo&quot;,&quot;designs&quot;,&quot;glamour&quot;,&quot;mjr&quot;,&quot;aa&quot;,&quot;aaa&quot;,&quot;woscm&quot;,&quot;mjn&quot;,&quot;watchesall&quot;,&quot;webpendants&quot;)
+skip_word=array("in","it","with","on","off","over","mm","inch","inches","clasp",_
+"wide","made","features","of","and","or","measures","around","can","be","combined",_
+"our","other","size","shape","the","may","design","top","split","vary","nice","good",_
+"has","closure","this","beautiful","gives","extra","brilliance","lots","artistically",_
+"along","top","portion","surrounded","center","inner","outer","around","other",_
+"zero","one","two","three","four","five","six","seven","eight","nine","ten",_
+"graduates","shank","length","diameter","is","to","will","comes","are","czs","designs","for","as",_
+"feature","graduated","from","measure","width","wide","short","long","small","large","medium","separated","by",_ 
+"perfect","very","alternating","approx","approximately","tag","accommodates","accommodate","an",_
+"closefivedollar","closeall","closeb","woscc","closen","bv","or","view","er",_
+"ss","ex","trbjothr","other","view all","style","all","ringsize...","woscsn",_
+"webearrings","webbracelets","webnecklaces","woscr","closeps","closeunder25","ringall",_
+"view","2","elementsofcharm","brall","watchesall","closew","closetendollar","neck",_
+"theme","back","sneakpreview","finding","webother","jewelry","close","mjn","ringall",_
+"closee","closeall","closefivedollar","filled","closeundertwentyfive","wosch","mjb",_
+"closeovertwentyfive","webrings","closer","closeb","2","closeo","closeps","woscf",_
+"adjustable","adjusts","a","x","ends","its","embellished","contains","hollow","each","both","removeable",_
+"used","use","item","order","replacement","full","you","says","back","tiny","these","backs","worn","most",_
+"ends","bonus","image","shown","sold","separately","pave","20â€?","24â€?","front","back","either","side",_
+"fashion","base","metal",_
+"bottom","area","include","includes","contains","have","total","functioning","out","open","stock","currently",_
+"new","arrivals","mjo","designs","glamour","mjr","aa","aaa","woscm","mjn","watchesall","webpendants")
 
 doc				=thiscomponent
 sheet			=doc.sheets.getbyname(pub_sheet_product_selector)
 
-	tag(tagIndex)=&quot;.925&quot; : tagIndex=1   &apos; Special case
+	tag(tagIndex)=".925" : tagIndex=1   ' Special case
 
-do 	&apos; for each row in product selector sheet (skip header)
+do 	' for each row in product selector sheet (skip header)
     xr=1+xr
 	cells = sheet.getCellRangeByposition(0,xr,pub_column_max,xr)
 	rows_product_selector() = cells.getdataarray()
-	row_product_selector=rows_product_selector(0)   &apos; 1 row of product_selector cells
+	row_product_selector=rows_product_selector(0)   ' 1 row of product_selector cells
 	desc=lcase(row_product_selector(pub_column_product_selector_desc))
 	
 	candidateTagIndex=0
@@ -265,53 +265,53 @@ do 	&apos; for each row in product selector sheet (skip header)
 		ffound=false
 	    for j=1 to len(tag_delims)
 	        if byte=mid(tag_delims,j,1) then
-	        	ffound=true  &apos; delimited byte
+	        	ffound=true  ' delimited byte
 	        	exit for
 	        end if
 	    next j		
 	    if not ffound then 
-	    	aDescTags(candidateTagIndex)=aDescTags(candidateTagIndex) &amp; byte
-		else candidateTagIndex=1+candidateTagIndex  &apos; Candidate tag complete, next slot
+	    	aDescTags(candidateTagIndex)=aDescTags(candidateTagIndex) & byte
+		else candidateTagIndex=1+candidateTagIndex  ' Candidate tag complete, next slot
 		end if
 	next i
 	
-	for i=0 to candidateTagIndex	&apos; Filter candidate tags
-		if aDescTags(i)&lt;&gt;&quot;&quot;				and _
+	for i=0 to candidateTagIndex	' Filter candidate tags
+		if aDescTags(i)<>""				and _
 		   not isnumeric(aDescTags(i))	and _
-		   len(aDescTags(i))&gt;2	 	   	then
-		    if right(aDescTags(i),2)=&quot;mm&quot; then
-				aDescTags(i)=&quot;&quot;
+		   len(aDescTags(i))>2	 	   	then
+		    if right(aDescTags(i),2)="mm" then
+				aDescTags(i)=""
 				goto next_i
 			end if	 
-		  	for j=0 to tagIndex		&apos; Eliminate duplicate tags
+		  	for j=0 to tagIndex		' Eliminate duplicate tags
 				if aDescTags(i)=tag(j)	then
-					aDescTags(i)=&quot;&quot;
+					aDescTags(i)=""
 				    goto next_i
 				end if
 			next j
-			for j=0 to ubound(skip_word)	&apos; Eliminate undesired tags
+			for j=0 to ubound(skip_word)	' Eliminate undesired tags
 				if aDescTags(i)=skip_word(j) then
-					aDescTags(i)=&quot;&quot;
+					aDescTags(i)=""
 				    goto next_i
 				end if
 			next j
-			&apos; &lt;&lt;&lt; delete ##x## &lt;&lt;&lt;
-		else aDescTags(i)=&quot;&quot;	
+			' <<< delete ##x## <<<
+		else aDescTags(i)=""	
 		end if
 next_i:
 	next i
 	
 	for i=0 to candidateTagIndex
-		if aDescTags(i)&lt;&gt;&quot;&quot; then
+		if aDescTags(i)<>"" then
 			tag(tagIndex)=aDescTags(i)
 			tagIndex=1+tagIndex
-			aDescTags(i)=&quot;&quot; 
+			aDescTags(i)="" 
  		end if 
 	next i
 
-loop until desc=&quot;&quot; or xr=pub_row_max  						&apos; loop row sheet product selector
+loop until desc="" or xr=pub_row_max  						' loop row sheet product selector
 
-FileNo = FreeFile               &apos; Establish free file handle
+FileNo = FreeFile               ' Establish free file handle
  
 Open Filename For Output As #FileNo       
 
@@ -319,23 +319,23 @@ for i=0 to tagIndex
   Print #FileNo, tag(i) 
 next i
 
-Close #FileNo                  &apos; Close file
+Close #FileNo                  ' Close file
 
 goto _exitfunc
 
 
 tag_error:
-_errbmsg=&quot;Error &quot; &amp; _errid &amp; &quot;: &quot;
+_errbmsg="Error " & _errid & ": "
 for _ixerr=0 to ubound(_errxmsg)
-    if _errxmsg(_ixerr)=&quot;&quot; then exit for
-    _errbmsg=_errbmsg &amp; _errxmsg(_ixerr) &amp; chr$(13) &amp; chr$(13)
+    if _errxmsg(_ixerr)="" then exit for
+    _errbmsg=_errbmsg & _errxmsg(_ixerr) & chr$(13) & chr$(13)
 next _ixerr	 
 frc=msgbox(_errbmsg,_errbflg,_errbtit)
 gen_desc_tags=_errid
 goto _exitfunc
 
-&apos; _error:
-&apos; gen_desc_tags=err()
+' _error:
+' gen_desc_tags=err()
 
 _exitfunc:
 end function
@@ -351,24 +351,24 @@ end function
 function insert_desc_tags%()
 
 
-&apos; for each row in tags
-&apos;   find all occurrences of tag in product selector desc column
-&apos;   if found, add tag to product selector tag column - insert with comma as needed
-&apos;   if not found, error message (bad tag)
-&apos;
-&apos; changes:
-&apos; see cols 2 and 3 
-&apos; 
+' for each row in tags
+'   find all occurrences of tag in product selector desc column
+'   if found, add tag to product selector tag column - insert with comma as needed
+'   if not found, error message (bad tag)
+'
+' changes:
+' see cols 2 and 3 
+' 
 
 dim frc%
 
-frc=msgbox(&quot;Do you want to insert Tags from Descriptions?&quot;,4+32+256,&quot;Verify Action&quot;)
-if frc&lt;&gt;6 then exit function   &apos;Must press YES
+frc=msgbox("Do you want to insert Tags from Descriptions?",4+32+256,"Verify Action")
+if frc<>6 then exit function   'Must press YES
 
-&apos; on error goto _error &lt;&lt;&lt;
+' on error goto _error <<<
 
 dim _ixerr%,_errxmsg$(10),_errbmsg$,_errbtit$,_errbflg%,_errid%
-_errbtit=&quot;Shopify Tag Insert Fail&quot; 
+_errbtit="Shopify Tag Insert Fail" 
 _errbflg=pub_msgbox_flag_stop_icon
 
 
@@ -383,7 +383,7 @@ dim opts as new com.sun.star.util.SearchOptions
 
 doc=thiscomponent
             
-rch = createunoservice(&quot;com.sun.star.util.TextSearch&quot;)
+rch = createunoservice("com.sun.star.util.TextSearch")
 
 with opts
   .algorithmType = com.sun.star.util.SearchAlgorithms.REGEXP
@@ -393,50 +393,50 @@ end with
 sheet=doc.sheets.getbyname(pub_sheet_product_selector)
 sheet_tag=doc.sheets.getbyname(pub_sheet_desctags)
 
-drow=0  &apos;skip header 
+drow=0  'skip header 
 
-do  &apos; for each row in product descriptor sheet
+do  ' for each row in product descriptor sheet
 	drow=1+drow
   	desc=lcase(sheet.getcellbyposition(pub_column_product_selector_desc,drow).string)
   	item_num=sheet.getcellbyposition(pub_column_product_selector_item_num,drow).string
   	xr=0  
-	do 	&apos; for each row in tag sheet
-	    xr=1+xr	&apos; skip header
+	do 	' for each row in tag sheet
+	    xr=1+xr	' skip header
 		cells = sheet_tag.getCellRangeByposition(0,xr,pub_column_max,xr)
 		rows_tag() = cells.getdataarray()
-		row_tag=rows_tag(0)   &apos; 1 row of tag cells
+		row_tag=rows_tag(0)   ' 1 row of tag cells
 		tag=lcase(row_tag(pub_column_desctags_tag))
-		new_tags=tag &amp; &quot;,&quot; &amp; lcase(row_tag(pub_column_desctags_more_tags))
+		new_tags=tag & "," & lcase(row_tag(pub_column_desctags_more_tags))
 	  
-	    opts.searchString = &quot;\b&quot; &amp; tag &amp; &quot;\b&quot;
+	    opts.searchString = "\b" & tag & "\b"
 	 	rch.setOptions(opts)
 		resu=rch.searchForward(desc,0,len(desc)-1)
 		r=resu.subRegExpressions
 	
-		if r&gt;0 then &apos; the regexp was matched -- desc contains tag
+		if r>0 then ' the regexp was matched -- desc contains tag
 			curr_tags=sheet.getcellbyposition(pub_column_product_selector_tags,drow).string
-			work_tags=lcase(curr_tags &amp; &quot;,&quot; &amp; new_tags) 
-			ss()=split(work_tags,&quot;,&quot;)
+			work_tags=lcase(curr_tags & "," & new_tags) 
+			ss()=split(work_tags,",")
 			for i=0 to ubound(ss)
 				for j=1+i to ubound(ss)
-					if ss(i)=ss(j) then ss(j)=&quot;&quot;
+					if ss(i)=ss(j) then ss(j)=""
 				next j
 			next i
-			work_tags=&quot;&quot; : comma=&quot;&quot;
+			work_tags="" : comma=""
 			for i=0 to ubound(ss)
-				if ss(i)&lt;&gt;&quot;&quot; then 
-					work_tags=work_tags &amp; comma &amp; ss(i)
-					comma=&quot;,&quot;
+				if ss(i)<>"" then 
+					work_tags=work_tags & comma & ss(i)
+					comma=","
 				end if
 			next i	
-			if work_tags&lt;&gt;curr_tags then sheet.getcellbyposition(pub_column_product_selector_tags,drow).string=work_tags
+			if work_tags<>curr_tags then sheet.getcellbyposition(pub_column_product_selector_tags,drow).string=work_tags
 		end if 
 		
-	loop until tag=&quot;&quot; or xr&gt;pub_row_max
+	loop until tag="" or xr>pub_row_max
 	
   	titem_num=sheet.getcellbyposition(pub_column_product_selector_item_num,drow).string
   	
-loop until titem_num=&quot;&quot; or drow&gt;pub_row_max
+loop until titem_num="" or drow>pub_row_max
 
 end function
 
@@ -452,20 +452,20 @@ end function
 function insert_file_tags%()
 
 
-&apos; for each line in tags file
-&apos;	find item number in product selector sheet (loaded to array for &quot;speed&quot;)
-&apos;   	if found, add new tags and sanitize all tags for item
-&apos;		at EOF, commit array back to sheet (see fcommit_to_sheet flag)
-&apos;	This runs for about 15 minutes.
-&apos;	May 2016, pb
+' for each line in tags file
+'	find item number in product selector sheet (loaded to array for "speed")
+'   	if found, add new tags and sanitize all tags for item
+'		at EOF, commit array back to sheet (see fcommit_to_sheet flag)
+'	This runs for about 15 minutes.
+'	May 2016, pb
 
 dim frc%
 
-frc=msgbox(&quot;Do you want to insert Tags from Tag File?&quot;,4+32+256,&quot;Verify Action&quot;)
-if frc&lt;&gt;6 then exit function   &apos;Must press YES
+frc=msgbox("Do you want to insert Tags from Tag File?",4+32+256,"Verify Action")
+if frc<>6 then exit function   'Must press YES
 
 dim _ixerr%,_errxmsg$(10),_errbmsg$,_errbtit$,_errbflg%,_errid%
-_errbtit=&quot;Shopify Tag Insert Fail&quot; 
+_errbtit="Shopify Tag Insert Fail" 
 _errbflg=pub_msgbox_flag_stop_icon
 
 
@@ -480,29 +480,29 @@ dim rows_product_selector(),r_prowoduct_selector()
 dim opts as new com.sun.star.util.SearchOptions
 dim homedir$,jeweldir$,txodir$,tag_file$,fbyte$,tt1 as variant,tt2 as variant
 
-homedir			=&quot;C:\Users\IBM_ADMIN\Desktop&quot;								&apos; Home directory
-jeweldir		=homedir  &amp; &quot;\Jewelry&quot;										&apos; Jewelry directory
-txodir			=jeweldir &amp; &quot;\@TEST\Tags\&quot;									&apos; Taxonomy directory	 
-tag_file		=txodir &amp; &quot;mma_tags_abbrev.txt&quot;   							&apos; Input Tag File
+homedir			="C:\Users\IBM_ADMIN\Desktop"								' Home directory
+jeweldir		=homedir  & "\Jewelry"										' Jewelry directory
+txodir			=jeweldir & "\@TEST\Tags\"									' Taxonomy directory	 
+tag_file		=txodir & "mma_tags_abbrev.txt"   							' Input Tag File
 
 doc=thiscomponent
             
-rch = createunoservice(&quot;com.sun.star.util.TextSearch&quot;)
+rch = createunoservice("com.sun.star.util.TextSearch")
 
 with opts
   .algorithmType = com.sun.star.util.SearchAlgorithms.REGEXP
   .searchFlag = com.sun.star.util.SearchFlags.REG_EXTENDED
 end with
 
-&apos; Load Product Descriptor into array for faster updates.
+' Load Product Descriptor into array for faster updates.
 sheet=doc.sheets.getbyname(pub_sheet_product_selector)
 
-drow=pub_sheet_product_selector_min_rows-1  &apos;min row count -1
+drow=pub_sheet_product_selector_min_rows-1  'min row count -1
 
-do  &apos; count rows with data
+do  ' count rows with data
 	drow=1+drow
-loop until &quot;&quot;=sheet.getcellbyposition(pub_column_product_selector_item_num,drow).string
-drow=drow-1	&apos; Data row count 
+loop until ""=sheet.getcellbyposition(pub_column_product_selector_item_num,drow).string
+drow=drow-1	' Data row count 
 
 cells = sheet.getCellRangeByposition(0,1,pub_column_max,drow)
 rows_product_selector() = cells.getdataarray()
@@ -514,81 +514,81 @@ recno=0
 
 line input #filein1 work_tags
 
-while not eof(filein1)  &apos; for each line in Tag File
+while not eof(filein1)  ' for each line in Tag File
 
-	recno=1+recno					&apos; Progress indicator
+	recno=1+recno					' Progress indicator
 
-	fitem_num=&quot;&quot;
+	fitem_num=""
 	
-	for i=1 to len(work_tags)		&apos; MMA item num is first blank delimited word.
-		fbyte=mid(work_tags,i,1) 	&apos; Remaining comma-delimited words are tags.
-		if fbyte=&quot; &quot; then exit for 	&apos; normally followed by a trailing comma that is ignored.
-		fitem_num=fitem_num &amp; fbyte &apos;	 iiiiiii tag1,tag2,tag3,    &lt;==== format
+	for i=1 to len(work_tags)		' MMA item num is first blank delimited word.
+		fbyte=mid(work_tags,i,1) 	' Remaining comma-delimited words are tags.
+		if fbyte=" " then exit for 	' normally followed by a trailing comma that is ignored.
+		fitem_num=fitem_num & fbyte '	 iiiiiii tag1,tag2,tag3,    <==== format
 	next i
 	
-	if right(work_tags,1)=&quot;,&quot; then 
+	if right(work_tags,1)="," then 
 		xx=1
 	else 
 		xx=0
 	end if
 	 
-	work_tags=lcase(mid(work_tags,i+1,len(work_tags)-(i+xx)))  	&apos; lose 1st word (MMA item num) &amp; probable trailing comma
+	work_tags=lcase(mid(work_tags,i+1,len(work_tags)-(i+xx)))  	' lose 1st word (MMA item num) & probable trailing comma
 							
-&apos; Lookup the Product Descriptor row by MMA Item Number.
-&apos; If not found, skip.  
-&apos; If found, insert &amp; sanitize all tags.
+' Lookup the Product Descriptor row by MMA Item Number.
+' If not found, skip.  
+' If found, insert & sanitize all tags.
 
 	ffound=false
 	for xd=0 to drow-1
 	
 		row_product_selector=rows_product_selector(xd)
-		&apos; &lt;&lt;&lt; tt1=row_product_selector(pub_column_product_selector_tags)   &apos; &lt;&lt;&lt;
+		' <<< tt1=row_product_selector(pub_column_product_selector_tags)   ' <<<
 		
-		if lcase(row_product_selector(pub_column_product_selector_item_num))=lcase(fitem_num) then  &apos; item found
+		if lcase(row_product_selector(pub_column_product_selector_item_num))=lcase(fitem_num) then  ' item found
 			curr_tags=row_product_selector(pub_column_product_selector_tags)
-			work_tags=lcase(curr_tags &amp; &quot;,&quot; &amp; work_tags)
-			ss()=split(work_tags,&quot;,&quot;)
-			for i=0 to ubound(ss)	&apos; Remove duplicates and plurals in work array
+			work_tags=lcase(curr_tags & "," & work_tags)
+			ss()=split(work_tags,",")
+			for i=0 to ubound(ss)	' Remove duplicates and plurals in work array
 				for j=1+i to ubound(ss)
 					if ss(i)=ss(j) then 
-						ss(j)=&quot;&quot;
-					elseif ss(i) &amp; &quot;s&quot; = ss(j) then ss(j)=&quot;&quot;  
-					elseif ss(j) &amp; &quot;s&quot; = ss(i) then ss(i)=&quot;&quot;
+						ss(j)=""
+					elseif ss(i) & "s" = ss(j) then ss(j)=""  
+					elseif ss(j) & "s" = ss(i) then ss(i)=""
 					end if
 				next j
 			next i
-			work_tags=&quot;&quot; : comma=&quot;&quot;
-			for i=0 to ubound(ss)	&apos; Rebuild from work array without baddies
-				if ss(i)&lt;&gt;&quot;&quot; then 
-					work_tags=work_tags &amp; comma &amp; ss(i)
-					comma=&quot;,&quot;
+			work_tags="" : comma=""
+			for i=0 to ubound(ss)	' Rebuild from work array without baddies
+				if ss(i)<>"" then 
+					work_tags=work_tags & comma & ss(i)
+					comma=","
 				end if
 			next i	
 			
-			if work_tags&lt;&gt;curr_tags then	&apos; Put changes in sheet array
+			if work_tags<>curr_tags then	' Put changes in sheet array
 				row_product_selector(pub_column_product_selector_tags)=work_tags
 			end if 
 	  			
 			ffound=true
 
-			&apos; &lt;&lt;&lt; tt2=row_product_selector(pub_column_product_selector_tags) &lt;&lt;&lt;
+			' <<< tt2=row_product_selector(pub_column_product_selector_tags) <<<
 			exit for	
 		end if
 	next
-	if 0 &amp; ffound=false then 	&apos;NO FAIL: Item number not found is ok for now
+	if 0 & ffound=false then 	'NO FAIL: Item number not found is ok for now
 		_errid=1100
-		_errxmsg(0)=&quot;Tag file item number &quot; &amp; fitem_num &amp; &quot; not found in &quot; &amp; pub_sheet_product_selector &amp; &quot; sheet&quot;
-		_errxmsg(1)=&quot;Tag file is &quot; &amp; tag_file
-		_errxmsg(2)=&quot;All sheet changes are discarded&quot;
+		_errxmsg(0)="Tag file item number " & fitem_num & " not found in " & pub_sheet_product_selector & " sheet"
+		_errxmsg(1)="Tag file is " & tag_file
+		_errxmsg(2)="All sheet changes are discarded"
 		goto tag_error		
 	end if
 	
 	line input #filein1 work_tags
 	
-wend	&apos; next Tag file line 
+wend	' next Tag file line 
 
 if fcommit_to_sheet=true then
-	&apos; Commit the array back to the sheet
+	' Commit the array back to the sheet
 	cells.setdataarray(rows_product_selector())
 end if
 
@@ -596,17 +596,17 @@ goto _exitfunc
 
 
 tag_error:
-&apos; _errbmsg=&quot;Error &quot; &amp; _errid &amp; &quot;: &quot;
-&apos; for _ixerr=0 to ubound(_errxmsg)
-&apos;     if _errxmsg(_ixerr)=&quot;&quot; then exit for
-&apos;     _errbmsg=_errbmsg &amp; _errxmsg(_ixerr) &amp; chr$(13) &amp; chr$(13)
-&apos; next _ixerr	 
-&apos; frc=msgbox(_errbmsg,_errbflg,_errbtit)
-&apos; insert_file_tags=_errid
+' _errbmsg="Error " & _errid & ": "
+' for _ixerr=0 to ubound(_errxmsg)
+'     if _errxmsg(_ixerr)="" then exit for
+'     _errbmsg=_errbmsg & _errxmsg(_ixerr) & chr$(13) & chr$(13)
+' next _ixerr	 
+' frc=msgbox(_errbmsg,_errbflg,_errbtit)
+' insert_file_tags=_errid
 
 
 _exitfunc:
-close #filein1 &apos; Close file
+close #filein1 ' Close file
 
 end function
 
